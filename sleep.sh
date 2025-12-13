@@ -8,6 +8,7 @@
 # Description:  Shuts down a computer if certain criteria are met:-
 #                 - None of the listed clients are active.
 #                 - None of the listed processes are active.
+#                 - Not during a listed skip day.
 #                 - None of the listed Sony TVs are active.
 #                 - No users are logged-on.
 #                 - No torrents are active, such as downloading or seeding.
@@ -17,9 +18,11 @@
 #
 # Requires:     cURL
 #
-# Revisions:    2020-09-16 - (Mad About Brighton) Created
+# Revisions:    2025-12-13 - (Mad About Brighton) Added support for skipping days
+#               2020-09-16 - (Mad About Brighton) Created
 #
 # References:   https://madaboutbrighton.net
+#               https://github.com/madaboutbrighton/sleep
 #------------------------------------------------------------------------------
 
 # Default options.
@@ -33,6 +36,7 @@ safe_margin_shutdown=300
 rtc_folder="/sys/class/rtc/rtc0"
 clients=""
 processes="cp mv rsync scp"
+skip_days=""
 # Sony TV settings.
 sony_tvs=""
 sony_tv_auth_psk=""
@@ -78,6 +82,9 @@ get_options() {
             ;;
           processes)
             processes="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
+            ;;
+          skip-days)
+            skip_days="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
             ;;
           sony-tvs)
             sony_tvs="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
@@ -138,6 +145,7 @@ get_options() {
     message "safe_margin_shutdown=${safe_margin_shutdown} seconds"
     message "rtc_folder=${rtc_folder}"
     message "processes=${processes}"
+    message "skip_days=${skip_days}"
     message "clients=${clients}"
     message "[SONY_TV]"
     message "sony_tvs=${sony_tvs}"
@@ -240,7 +248,7 @@ trim() {
 #######################################
 # Checks whether any computers are awake by pinging them.
 # Arguments:
-#   The IP addresses to be checked, a space seperated string.
+#   The IP addresses to be checked, a space separated string.
 # Returns:
 #   The total number of IP addresses found to be awake.
 # Example:
@@ -344,6 +352,67 @@ check_processes() {
   fi
   
   # Return the total number of running processes.
+  echo "${total}"
+}
+
+#######################################
+# Checks whether the current day of the week is listed as a day to skip.
+# Arguments:
+#   The numbers of the days of the week to skip, a space separated string. Case insensitive.
+#   1 = Monday, 2 = Tuesday, 3 = Wednesday, 4 = Thursday, 5 = Friday, 6 = Saturday, 7 = Sunday.
+# Returns:
+#   0 if the current day is not listed as a skp day.
+#   1 if the current day is listed as a skp day.
+# Example:
+#   check_skip_days "5 6 7"
+#######################################
+check_skip_days() {
+  local -r SKIP_DAYS="${1}"
+  # Create an array of the days to skip.
+  # Each day is a number - 1 = Monday, 7 = Sunday.
+  local skip_days=($SKIP_DAYS)
+  local text=""
+  # Reset the counters.
+  local counter=0
+  local total=0
+  
+  if [ -n "${SKIP_DAYS}" ]; then
+
+    # Get current day of the week as a number.
+    current_day=$(date +%u)    
+  
+    message "Checking if today (${current_day}) is a skip day (${SKIP_DAYS})..."
+    
+    for skip_day in "${skip_days[@]}"; do
+      # TODO - Trimming is emptying the value
+      # skip_day=$(trim "${skip_day}")
+
+      # message "DAY - ${skip_day}"
+
+      if [ -n "${skip_day}" ]; then
+        # message "is today (${current_day}) equal to skip day (${skip_day})..."
+              
+        if [ "$current_day" = "$skip_day" ]; then
+          # Today is listed as a skip day.
+          total=1
+        fi
+      fi
+    done
+    
+    # Print a useful message.
+    case $total in
+    0)
+      text="Today is not a day to be skipped."
+      ;;
+    1)
+      text="Today is a day to be skipped."
+      ;;
+    esac
+    
+    message "${text}\n"
+  fi
+  
+  # Return the result.
   echo "${total}"
 }
 
@@ -624,6 +693,7 @@ main() {
 
   total=$((total+$(check_clients "${clients}")))
   total=$((total+$(check_processes "${processes}")))
+  total=$((total+$(check_skip_days "${skip_days}")))
   total=$((total+$(check_sony_tvs "${sony_tvs}" "${sony_tv_auth_psk}")))
   total=$((total+$(check_users)))
   total=$((total+$(check_torrents "${torrent_type}" "${torrent_user}" "${torrent_password}" "${torrent_level}")))

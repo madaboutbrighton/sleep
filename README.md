@@ -3,6 +3,7 @@
 Bash script to shutdown a computer if certain criteria are met:-
   - None of the listed clients are active.
   - None of the listed processes are active.
+  - Not during a listed skip day.
   - None of the listed Sony TVs are active.
   - No users are logged-on.
   - No torrents are active, such as downloading or seeding.
@@ -62,6 +63,11 @@ sleep.sh --sony-tvs "192.168.1.67 192.168.1.89" --sony-tv-auth-psk "my_sony_psk"
 ```
 This would shutdown a computer if the Sony TVs `192.168.1.67` and `192.168.1.89` are not active, no users are logged-on, and no `cp`, `mv`, `rsync` or `scp` processes are running. 
 
+```bash
+sleep.sh --skip-days "5 6 7"
+```
+This would not shutdown a computer if it was Friday, Saturday or Sunday. 
+
 ## Options
 
 #### Clients `--clients `
@@ -75,6 +81,12 @@ Perform a trial run with **no shutdown** being implemented. Verbose output will 
 #### Processes `--processes `
 
 A shutdown will only occur if the specified processes are not running. A space-separated list. Default value is `cp mv rsync scp`.
+
+#### Skip days `--skip-days `
+
+A shutdown will not occur if the current day matches one of the specified days to skip. A space-separated list.  
+
+1 = Monday, 2 = Tuesday, 3 = Wednesday, 4 = Thursday, 5 = Friday, 6 = Saturday, 7 = Sunday.
 
 #### RTC folder `--rtc-folder `
 
@@ -140,6 +152,6 @@ Increase the amount of information printed to the terminal.
 
 You can call `sleep.sh` directly from the command-line. However, it is highly likely that you would want to call `sleep.sh` on a regular basis, so that a shutdown occurs if the specified criteria are met. So another script is required that contains a call to `sleep.sh`. This script is named `call-sleep`. By placing it into one of the _cron_ directories it can be automatically run on a regular basis. Within this script, you can add your own specific options, such as client IP addresses to be checked.
 
-### Why do you recomend only giving _root_ read, write and excecute permissions on `call-sleep`?
+### Why do you recommend only giving _root_ read, write and execute permissions on `call-sleep`?
 
 The options within `call-sleep` could contain IP addresses and passwords. For security reasons it makes sense to restrict access to this script.
