@@ -63,6 +63,11 @@ sleep.sh --sony-tvs "192.168.1.67 192.168.1.89" --sony-tv-auth-psk "my_sony_psk"
 ```
 This would shutdown a computer if the Sony TVs `192.168.1.67` and `192.168.1.89` are not active, no users are logged-on, and no `cp`, `mv`, `rsync` or `scp` processes are running. 
 
+```bash
+sleep.sh --skip-days "5 6 7"
+```
+This would not shutdown a computer is it was Friday, Saturday or Sunday. 
+
 ## Options
 
 #### Clients `--clients `
@@ -76,6 +81,12 @@ Perform a trial run with **no shutdown** being implemented. Verbose output will 
 #### Processes `--processes `
 
 A shutdown will only occur if the specified processes are not running. A space-separated list. Default value is `cp mv rsync scp`.
+
+#### Skip days `--skip-days `
+
+A shutdown will not occur if the current day matches one of the specified days to skip. A space-seperated list. Default value is ''.  
+
+1 = Monday, 2 - Tuesday, 3 = Wednesday, 4 = Thursday, 5 = Friday, 6 = Saturday, 7 = Sunday.
 
 #### RTC folder `--rtc-folder `
 
