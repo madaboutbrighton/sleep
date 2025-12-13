@@ -1,6 +1,7 @@
 # sleep
 
 Bash script to shutdown a computer if certain criteria are met:-
+  - Not during a listed skip day.
   - None of the listed clients are active.
   - None of the listed processes are active.
   - None of the listed Sony TVs are active.
