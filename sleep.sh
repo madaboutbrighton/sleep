@@ -8,6 +8,7 @@
 # Description:  Shuts down a computer if certain criteria are met:-
 #                 - None of the listed clients are active.
 #                 - None of the listed processes are active.
+#                 - Not during a listed skip day.
 #                 - None of the listed Sony TVs are active.
 #                 - No users are logged-on.
 #                 - No torrents are active, such as downloading or seeding.
@@ -17,7 +18,8 @@
 #
 # Requires:     cURL
 #
-# Revisions:    2020-09-16 - (Mad About Brighton) Created
+# Revisions:    2025-12-13 - (Mad About Brighton) Added support for skipping days
+#               2020-09-16 - (Mad About Brighton) Created
 #
 # References:   https://madaboutbrighton.net
 #               https://github.com/madaboutbrighton/sleep
@@ -357,7 +359,7 @@ check_processes() {
 # Checks whether the current day of the week is listed as a day to skip.
 # Arguments:
 #   The numbers of the days of the week to skip, a space separated string. Case insensitive.
-#   1 = Monday, 2 - Tuesday, 3 = Wednesday, 4 = Thursday, 5 = Friday, 6 = Saturday, 7 = Sunday.
+#   1 = Monday, 2 = Tuesday, 3 = Wednesday, 4 = Thursday, 5 = Friday, 6 = Saturday, 7 = Sunday.
 # Returns:
 #   0 if the current day is not listed as a skp day.
 #   1 if the current day is listed as a skp day.
