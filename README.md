@@ -66,7 +66,7 @@ This would shutdown a computer if the Sony TVs `192.168.1.67` and `192.168.1.89`
 ```bash
 sleep.sh --skip-days "5 6 7"
 ```
-This would not shutdown a computer is it was Friday, Saturday or Sunday. 
+This would not shutdown a computer if it was Friday, Saturday or Sunday. 
 
 ## Options
 
